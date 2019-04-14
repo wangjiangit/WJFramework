@@ -10,11 +10,19 @@ namespace WJ\kernel;
  */
 class Container
 {
-
+    /**
+     * @var array 类名集合
+     */
     protected $classes = [];
 
+    /**
+     * @var array 实例集合
+     */
     protected $instances = [];
 
+    /**
+     * @var array 目录集合
+     */
     protected static $dirs = [];
 
     /**
@@ -151,6 +159,68 @@ class Container
 
         return $object;
     }
+
+    // ------------------------- 自动装载类功能START--------------------
+
+    /**
+     * 添加目录路径
+     *
+     * @param mixed $dirs 目录路径
+     * @author wangjian
+     */
+    public static function addDirectory($dirs)
+    {
+        if (is_array($dirs) || is_object($dirs)) {
+            foreach ($dirs as $dir) {
+                self::addDirectory($dir);
+            }
+        } else if (is_string($dirs)) {
+            if (!in_array($dirs, self::$dirs)) {
+                self::$dirs[] = $dirs;
+            }
+        }
+
+    }
+
+    /**
+     * 装载类对应的类文件
+     *
+     * @param string $class
+     * @author wangjian
+     */
+    public static function loadClass(string $class)
+    {
+        $classFile = str_replace(['\\', '_'], '/', $class) . '.php';
+        foreach (self::$dirs as $dir) {
+            $file = $dir . '/' . $classFile;
+            if (is_file($file) && file_exists($file)) {
+                require $file;
+                return;
+            }
+        }
+    }
+
+    /**
+     * 实现实例化类自动加载机制
+     *
+     * @param bool $enabled
+     * @param array $dirs
+     * @author wangjian
+     */
+    public static function autoload(bool $enabled = true, array $dirs = [])
+    {
+        if ($enabled) {
+            spl_autoload_register([__CLASS__, 'loadClass']);
+        } else {
+            spl_autoload_unregister([__CLASS__, 'loadClass']);
+        }
+
+        if (!empty($dirs)) {
+            self::addDirectory($dirs);
+        }
+    }
+
+// ------------------------- 自动装载类功能END----------------------
 
 
 }
