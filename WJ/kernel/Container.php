@@ -1,13 +1,14 @@
 <?php
 declare(strict_types=1);
-
-namespace WJ\kernel;
 /**
  * Created by PhpStorm.
  * User: wangjian
  * Date: 2019/4/14
  * Time: 8:58
  */
+
+namespace WJ\kernel;
+
 class Container
 {
     /**
