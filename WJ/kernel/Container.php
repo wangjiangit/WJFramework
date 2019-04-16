@@ -97,7 +97,7 @@ class Container
                     $refClass = new \ReflectionClass($class);
                     return $refClass->newInstanceArgs($params);
                 } catch (\ReflectionException $e) {
-                    throw new \ReflectionException("不能实例化{$class}", 0, $e);
+                    throw new \ReflectionException("{$class} cannot be instantiated", 0, $e);
                 }
         }
     }
