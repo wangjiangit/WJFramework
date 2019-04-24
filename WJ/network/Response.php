@@ -132,10 +132,10 @@ class Response
     /**
      * 添加头信息到响应
      *
-     * @author wangjian
      * @param string|array $name 头名或头名和头值数组
      * @param string $value 头值
      * @return $this
+     * @author wangjian
      */
     public function header($name, string $value = null)
     {
@@ -153,8 +153,8 @@ class Response
     /**
      * 返回头信息
      *
-     * @author wangjian
      * @return array
+     * @author wangjian
      */
     public function headers()
     {
@@ -164,9 +164,9 @@ class Response
     /**
      * 写入内容到响应体
      *
-     * @author wangjian
      * @param string $body
      * @return $this
+     * @author wangjian
      */
     public function write(string $body)
     {
@@ -178,14 +178,43 @@ class Response
     /**
      * 清空响应体
      *
-     * @author wangjian
      * @return $this
+     * @author wangjian
      */
     public function clear()
     {
-        $this->status=200;
-        $this->headers=[];
-        $this->body='';
+        $this->status = 200;
+        $this->headers = [];
+        $this->body = '';
+
+        return $this;
+    }
+
+    /**
+     * 设置HTTP缓存
+     *
+     * @param $expires
+     * @return $this
+     * @author wangjian
+     */
+    public function cache($expires)
+    {
+        if (false == $expires) {
+            $this->headers['Expires'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
+            $this->headers['Cache-Control'] = [
+                'no-store, no-cache, must-revalidate',
+                'post-check=0, pre-check=0',
+                'max-age=0'
+            ];
+            $this->headers['Pragma'] = 'no-cache';
+        } else {
+            $expires = is_int($expires) ? $expires : strtotime($expires);
+            $this->headers['Expires'] = gmdate('D, d M Y H:i:s', $expires);
+            $this->headers['Cache-Control'] = 'max-age=' . ($expires - time());
+            if (isset($this->headers['Pragma']) && ('no-cache' == $this->headers['Pragma'])) {
+                unset($this->headers['Pragma']);
+            }
+        }
 
         return $this;
     }
