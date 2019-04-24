@@ -36,7 +36,7 @@ class Response
     /**
      * @var array HTTP 状态码描述
      */
-    public static $codes = array(
+    public static $codes = [
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing',
@@ -105,5 +105,30 @@ class Response
 
         510 => 'Not Extended',
         511 => 'Network Authentication Required'
-    );
+    ];
+
+    /**
+     * 设置响应状态码
+     *
+     * @param int $code HTTP status code.
+     * @return object|int Self reference
+     * @throws \Exception If invalid status code
+     */
+    public function status(int $code = null) {
+        if ($code === null) {
+            return $this->status;
+        }
+
+        if (array_key_exists($code, self::$codes)) {
+            $this->status = $code;
+        }
+        else {
+            throw new \Exception('Invalid status code.');
+        }
+
+        return $this;
+    }
+
+
+
 }
