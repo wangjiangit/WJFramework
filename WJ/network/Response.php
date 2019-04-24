@@ -110,9 +110,9 @@ class Response
     /**
      * 设置响应状态码
      *
-     * @param int $code HTTP status code.
-     * @return object|int Self reference
-     * @throws \Exception If invalid status code
+     * @param int $code 状态码
+     * @return object|int $this实例
+     * @throws \Exception 异常
      */
     public function status(int $code = null) {
         if ($code === null) {
