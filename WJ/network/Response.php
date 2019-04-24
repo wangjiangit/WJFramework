@@ -16,12 +16,12 @@ class Response
     /**
      * @var int  状态码
      */
-    protected $status=200;
+    protected $status = 200;
 
     /**
      * @var array  头信息
      */
-    protected $headers=[];
+    protected $headers = [];
 
     /**
      * @var string 返回体
@@ -31,7 +31,7 @@ class Response
     /**
      * @var bool 是否发送
      */
-    protected $isSent=false;
+    protected $isSent = false;
 
     /**
      * @var array HTTP 状态码描述
@@ -114,21 +114,81 @@ class Response
      * @return object|int $this实例
      * @throws \Exception 异常
      */
-    public function status(int $code = null) {
+    public function status(int $code = null)
+    {
         if ($code === null) {
             return $this->status;
         }
 
         if (array_key_exists($code, self::$codes)) {
             $this->status = $code;
-        }
-        else {
+        } else {
             throw new \Exception('Invalid status code.');
         }
 
         return $this;
     }
 
+    /**
+     * 添加头信息到响应
+     *
+     * @author wangjian
+     * @param string|array $name 头名或头名和头值数组
+     * @param string $value 头值
+     * @return $this
+     */
+    public function header($name, string $value = null)
+    {
+        if (is_array($name)) {
+            foreach ($name as $k => $v) {
+                $this->headers[$k] = $v;
+            }
+        } else {
+            $this->headers[$name] = $value;
+        }
+
+        return $this;
+    }
+
+    /**
+     * 返回头信息
+     *
+     * @author wangjian
+     * @return array
+     */
+    public function headers()
+    {
+        return $this->headers;
+    }
+
+    /**
+     * 写入内容到响应体
+     *
+     * @author wangjian
+     * @param string $body
+     * @return $this
+     */
+    public function write(string $body)
+    {
+        $this->body = $body;
+
+        return $this;
+    }
+
+    /**
+     * 清空响应体
+     *
+     * @author wangjian
+     * @return $this
+     */
+    public function clear()
+    {
+        $this->status=200;
+        $this->headers=[];
+        $this->body='';
+
+        return $this;
+    }
 
 
 }
