@@ -170,7 +170,7 @@ class Response
      */
     public function write(string $body)
     {
-        $this->body = $body;
+        $this->body .= $body;
 
         return $this;
     }
@@ -217,6 +217,92 @@ class Response
         }
 
         return $this;
+    }
+
+    /**
+     * 获取响应体长度
+     *
+     * @author wangjian
+     * @return int
+     */
+    public function getContentLength()
+    {
+        return extension_loaded('mbstring') ? mb_strlen($this->body, 'latin1') : strlen($this->body);
+    }
+
+    /**
+     * 响应是否发送
+     *
+     * @author wangjian
+     * @return bool
+     */
+    public function sent()
+    {
+        return $this->isSent;
+    }
+
+    /**
+     * 发送头
+     *
+     * @author wangjian
+     * @return $this
+     */
+    public function sendHeaders()
+    {
+        // 发送状态码头
+        if (false !== strpos(PHP_SAPI, 'cgi')) {  // PHP_SAPI 等价于 php_sapi_name()
+            header(sprintf('Status: %d %s', $this->status, self::$codes[$this->status]), true);
+        } else {
+            header(
+                sprintf(
+                    '%s %d %s',
+                    (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1'),
+                    $this->status,
+                    self::$codes[$this->status]),
+                true,
+                $this->status
+            );
+        }
+
+        // 发送其他的信息头
+        foreach ($this->headers as $key => $value) {
+            if (is_array($value)) {
+                foreach ($value as $val) {
+                    header($key . ': ' . $val, false);
+                }
+
+            } else {
+                header($key . ':' . $value);
+            }
+        }
+
+        // 发送 Content-length 头
+        $length = $this->getContentLength();
+        if ($length > 0) {
+            header('Content-Length:' . $length);
+        }
+
+        return $this;
+    }
+
+    /**
+     * 发送响应
+     *
+     * @author wangjian
+     */
+    public function send()
+    {
+        if (ob_get_length() > 0) {
+            ob_end_clean();
+        }
+
+        if (!headers_sent()) {
+            $this->sendHeaders();
+        }
+
+        echo $this->body;
+
+        $this->isSent = true;
     }
 
 
